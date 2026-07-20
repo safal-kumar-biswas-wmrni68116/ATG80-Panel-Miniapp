@@ -10,8 +10,8 @@ export function Home() {
   const dpSchema = useDpSchema();
   console.log("dpSchema", dpSchema);
 
-  const dpSchemaList = Object.entries(dpSchema);
-  console.log("dpSchemaList", dpSchemaList[0][1].name);
+  // const dpSchemaList = Object.entries(dpSchema);
+  // console.log("dpSchemaList", dpSchemaList[0][1].name);
 
 
   // Get all dpState
@@ -19,8 +19,8 @@ export function Home() {
   console.log("dpState", dpState);
 
   
-  const dpStateList = Object.entries(dpState);
-  console.log("dpStateList", dpStateList[0][1]);
+  // const dpStateList = Object.entries(dpState);
+  // console.log("dpStateList", dpStateList[0][1]);
 
 
 
@@ -31,13 +31,27 @@ export function Home() {
 
     <NavBar leftText="Washing Machine" leftTextType="home" />
     
-    <View>
+    {/* Render all dpState by making this pair */}
+    {/* <View>
       {dpStateList.map(([name, value]) => (
         <View key={name}>
         <Text>{name}: {value}</Text>
         </View>
       ))}
+    </View> */}
+
+
+    {/* another way to display dpState directly*/}
+    <View>
+      {Object.keys(dpSchema).map((dpCode) => {
+        return (
+          <View key={dpCode}>
+            <Text>{dpCode}: {dpState[dpCode]}</Text>
+          </View>
+        );
+      })}
     </View>
+
 
     </>
   );
