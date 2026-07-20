@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, View } from '@ray-js/ray';
 import { useDevInfo, useActions, useDpSchema, useProps } from '@ray-js/panel-sdk';
 import { NavBar, Button } from '@ray-js/smart-ui';
-import { TySwitch } from '@ray-js/components-ty';
 import styles from './index.module.less';
 
 export function Home() {
@@ -22,13 +21,14 @@ export function Home() {
       <View className={styles.view}>
         {Object.keys(dpSchema || {}).map(dpCode => {
           const schemaItem = dpSchema[dpCode];
+          console.log(schemaItem);
           const value = dpState[dpCode];
           const isEditable = schemaItem.mode === 'rw'; // only rw DPs should get controls
-          const propType = schemaItem.property?.type;
+          const propType = schemaItem.property?.type;  //similar to typeOf
 
           return (
             <View key={dpCode} className={styles.dpRow}>
-              <Text className={styles.dpLabel}>{schemaItem.name || dpCode}</Text>
+              <Text className={styles.dpLabel}>{dpCode}</Text>
 
               {/* Read-only DPs: just show the value, no control */}
               {!isEditable && <Text className={styles.dpValue}>{String(value)}</Text>}
