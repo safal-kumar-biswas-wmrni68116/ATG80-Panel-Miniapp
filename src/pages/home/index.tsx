@@ -16,15 +16,14 @@ export function Home() {
 
   return (
     <>
-      <NavBar leftText="Washing Machine" leftTextType="home" />
+      {/* <NavBar leftText="Washing Machine" leftTextType="home" /> */}
 
       <View className={styles.view}>
         {Object.keys(dpSchema || {}).map(dpCode => {
           const schemaItem = dpSchema[dpCode];
-          console.log(schemaItem);
           const value = dpState[dpCode];
           const isEditable = schemaItem.mode === 'rw'; // only rw DPs should get controls
-          const propType = schemaItem.property?.type;  //similar to typeOf
+          const propType = schemaItem.property?.type; // similar to typeOf
 
           return (
             <View key={dpCode} className={styles.dpRow}>
