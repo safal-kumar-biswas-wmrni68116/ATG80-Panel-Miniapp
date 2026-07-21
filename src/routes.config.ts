@@ -6,4 +6,9 @@ export const routes: Routes = [
     path: '/pages/home/index',
     name: 'Home',
   },
+  {
+    route: '/demo',
+    path: '/pages/demo/index',
+    name: 'DemoPage',
+  },
 ];

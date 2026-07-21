@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from '@ray-js/ray';
+import { navigateTo, Text, View } from '@ray-js/ray';
 import { useDevInfo, useActions, useDpSchema, useProps } from '@ray-js/panel-sdk';
 import { NavBar, Button } from '@ray-js/smart-ui';
 import styles from './index.module.less';
@@ -14,9 +14,12 @@ export function Home() {
   // actions[dpCode].set(value) is how you PUBLISH a new value for a DP
   const actions = useActions();
 
+  console.log('This is Home Page 26');
+
   return (
     <>
       {/* <NavBar leftText="Washing Machine" leftTextType="home" /> */}
+      
 
       <View className={styles.view}>
         {Object.keys(dpSchema || {}).map(dpCode => {
@@ -25,9 +28,23 @@ export function Home() {
           const isEditable = schemaItem.mode === 'rw'; // only rw DPs should get controls
           const propType = schemaItem.property?.type; // similar to typeOf
 
+          // console.log(dpCode, dpState[dpCode]);
+
+
+          let greeting;
+          if(dpCode === 'switch' && dpState[dpCode] === true) {
+              greeting = "Power On";
+          }
+          else if(dpCode === 'switch' && dpState[dpCode] === false) {
+              greeting = "Power Off";
+          }
+
+
           return (
             <View key={dpCode} className={styles.dpRow}>
               <Text className={styles.dpLabel}>{dpCode}</Text>
+              <Text>{greeting}</Text>
+
 
               {/* Read-only DPs: just show the value, no control */}
               {!isEditable && <Text className={styles.dpValue}>{String(value)}</Text>}
@@ -93,6 +110,12 @@ export function Home() {
           );
         })}
       </View>
+
+      <Button onClick={() => navigateTo({ url: '/pages/demo/index' })}>
+        Go to Demo Page
+      </Button>
+
+      {/* <Button>Go to Demo Page</Button> */}
     </>
   );
 }
