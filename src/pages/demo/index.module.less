@@ -1,53 +1,60 @@
-.view {
-  padding: 20rpx 30rpx;
+* {
+  margin: 0rpx;
+  padding: 0rpx;
   box-sizing: border-box;
-  
-  background-image: url('../../res/home-bg.png');
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding-top: 60rpx;
+  box-sizing: border-box;
+  color: #ffffff;
+
+  background-image: url('../../res/home-bg@2x.png');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-}
 
-.dpRow {
+}
+// ---------- Power button ----------
+
+.footer {
+  position: absolute;
+  bottom: 150rpx;
   display: flex;
-  flex-direction: column;
-  padding: 16rpx 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0 30rpx;
+  box-sizing: border-box;
 }
 
-.dpLabel {
-  font-size: 26rpx;
-  color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 10rpx;
-}
-
-.dpValue {
-  font-size: 28rpx;
-  color: rgba(0, 0, 0, 0.9);
-}
-
-.optionRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.optionBtn {
-  margin: 0;
-}
-
-.stepperRow {
+.powerBtn {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  justify-content: center;
+  width: 100%;
+  max-width: 600rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  background-color: #ffffff;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.15);
 }
 
-.stepperValue {
-  font-size: 28rpx;
-  min-width: 60rpx;
-  text-align: center;
+.powerIcon {
+  font-size: 40rpx;
+  color: #2f6bff;
+  margin-right: 24rpx;
 }
 
-.toggleBtn {
-  width: 120rpx;
+.powerText {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #2f6bff;
+  letter-spacing: 1rpx;
 }

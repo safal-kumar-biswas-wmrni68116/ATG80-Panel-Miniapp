@@ -1,53 +1,111 @@
-.view {
-  padding: 20rpx 30rpx;
+* {
+  margin: 0rpx;
+  padding: 0rpx;
   box-sizing: border-box;
-  
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding-top: 60rpx;
+  box-sizing: border-box;
+  color: #ffffff;
+
   background-image: url('../../res/home-bg.png');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+
 }
 
-.dpRow {
+
+// ---------- Full Content -----------
+.container {
   display: flex;
   flex-direction: column;
-  padding: 16rpx 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 200rpx;
+  height: 100%;
+
+  // border: 2px solid red;
+
 }
 
-.dpLabel {
-  font-size: 26rpx;
-  color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 10rpx;
-}
+// ---------- Machine image ----------
 
-.dpValue {
-  font-size: 28rpx;
-  color: rgba(0, 0, 0, 0.9);
-}
-
-.optionRow {
+.machineWrap {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  // margin-bottom: 48rpx;
+
 }
 
-.optionBtn {
-  margin: 0;
+.machineImage {
+  width: 600rpx;
+  height: 800rpx;
 }
 
-.stepperRow {
+// ---------- Text ----------
+
+.title {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 60rpx;
+}
+
+.subtitle {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 80rpx;
+}
+
+.helper {
+  font-size: 30rpx;
+  line-height: 40rpx;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0 60rpx;
+}
+
+// ---------- Power button ----------
+
+.footer {
+  position: absolute;
+  bottom: 150rpx;
+  width: 75%;
+  padding: 0 30rpx;
+  box-sizing: border-box;
+}
+
+.powerBtn {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  justify-content: center;
+  width: 100%;
+  max-width: 600rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  background-color: #ffffff;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.15);
 }
 
-.stepperValue {
-  font-size: 28rpx;
-  min-width: 60rpx;
-  text-align: center;
+.powerIcon {
+  font-size: 40rpx;
+  color: #2f6bff;
+  margin-right: 24rpx;
 }
 
-.toggleBtn {
-  width: 120rpx;
+.powerText {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #2f6bff;
+  letter-spacing: 1rpx;
 }
