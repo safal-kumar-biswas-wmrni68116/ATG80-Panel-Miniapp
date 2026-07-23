@@ -10,6 +10,8 @@ export function Home() {
   const dpState = useProps(state => state);
   const actions = useActions();
   const isNavigating = useRef(false);
+  const isStart = useRef(false);
+  const isChildLock = useRef(false);
 
   const isOn = dpState.switch === true;
 
@@ -18,6 +20,13 @@ export function Home() {
     if (isNavigating.current) return;
     isNavigating.current = true;
     actions.switch.set(true);
+
+    isStart.current = true;
+    actions.start.set(false);
+
+    isChildLock.current = true;
+    actions.child_lock.set(false);
+
     navigateTo({ url: '/pages/demo/index' });
   };
 

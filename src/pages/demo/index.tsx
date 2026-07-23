@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Text, View, Image, navigateTo } from '@ray-js/ray';
-import { useActions, useProps } from '@ray-js/panel-sdk';
+import { useActions, useDpSchema, useProps } from '@ray-js/panel-sdk';
 import styles from './index.module.less';
 
 import circleImg from '../../res/banner@2x.png';
@@ -16,41 +16,44 @@ const STAGE_LABELS = ['Soak', 'Wash', 'Rinse', 'Spin'];
 const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
 export function Demo() {
+  const dpSchema = useDpSchema();
   const dpState = useProps(state => state);
   const actions = useActions();
   const isNavigating = useRef(false);
-  const isStart = useRef(false);
-  const isChildLock = useRef(false);
+
+  const [isProgramPickerOpen, setProgramPickerOpen] = useState(false);
 
   const isRunning = dpState.start === true;
   const isLocked = dpState.child_lock === true;
   const program = dpState.program ?? 'NORMAL';
   const workState = dpState.work_state ?? 'shut_down';
 
+  // Program options pulled live from schema, not hardcoded
+  const programRange = dpSchema?.program?.property?.range ?? [];
+
   // remain_time is in minutes (per schema) -> format as MM:00
   const remainMinutes = Number(dpState.remain_time ?? 0);
   const durationText = `${String(remainMinutes).padStart(2, '0')}:00`;
 
   const currentStageIndex = STAGE_ORDER.indexOf(workState);
-  // Progress ratio (0 to 1) across the tracker, used to size the active line
   const stageRatio =
     currentStageIndex <= 0 ? 0 : Math.min(currentStageIndex, STAGE_SEGMENTS) / STAGE_SEGMENTS;
 
   const handlePowerOff = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
+
     actions.switch.set(false);
-
-    isStart.current = true;
     actions.start.set(false);
-
-    isChildLock.current = true;
     actions.child_lock.set(false);
 
-    navigateTo({ url: '/pages/home/index' });
+    navigateTo({ url: '/pages/home/index' }); // matches the `route` value in routes.config.ts
   };
 
+  // Child lock can only be toggled while the machine is actually running.
+  // Tapping it while idle is a no-op — button is visually dimmed to match.
   const handleToggleChildLock = () => {
+    if (!isRunning) return;
     actions.child_lock.set(!isLocked);
   };
 
@@ -62,11 +65,37 @@ export function Demo() {
     actions.start.set(false);
   };
 
+  // Any rw parameter (program, water_level, etc.) should be locked while the
+  // machine is running — user must Pause first. Add the same `if (isRunning) return;`
+  // guard to any future rw control you wire up here.
+  // Safety net: if `start` flips to true (e.g. DP updated elsewhere) while
+  // the picker happens to be open, close it rather than leaving an editable
+  // rw control exposed mid-run.
+  useEffect(() => {
+    if (isRunning && isProgramPickerOpen) {
+      setProgramPickerOpen(false);
+    }
+  }, [isRunning, isProgramPickerOpen]);
+
+  const handleOpenProgramPicker = () => {
+    if (isRunning) return;
+    setProgramPickerOpen(true);
+  };
+
+  const handleSelectProgram = (option: string) => {
+    if (isRunning) return; // extra guard in case the modal was already open when start flipped true
+    actions.program.set(option);
+    setProgramPickerOpen(false);
+  };
+
   return (
     <View className={styles.view}>
       {/* Top row: program pill + power button */}
       <View className={styles.topRow}>
-        <View className={styles.programPill}>
+        <View
+          className={isRunning ? styles.programPillDisabled : styles.programPill}
+          onClick={handleOpenProgramPicker}
+        >
           <Text className={styles.starIcon}>&#9733;</Text>
           <Text className={styles.programText}>{String(program).toUpperCase()}</Text>
         </View>
@@ -82,10 +111,15 @@ export function Demo() {
           {String(workState).replace(/_/g, ' ')}
         </Text>
 
-        <View className={styles.lockRow} onClick={handleToggleChildLock}>
-          <Text className={styles.lockLabel}>Child Lock</Text>
+        <View
+          className={isRunning ? styles.lockRow : styles.lockRowDisabled}
+          onClick={handleToggleChildLock}
+        >
+          <Text className={isRunning ? styles.lockLabel : styles.lockLabelDisabled}>
+            Child Lock
+          </Text>
           <Image
-            className={styles.lockIcon}
+            className={isRunning ? styles.lockIcon : styles.lockIconDisabled}
             src={isLocked ? lockImg : unlockImg}
             mode="aspectFit"
           />
@@ -99,20 +133,18 @@ export function Demo() {
           src={circleImg}
           mode="aspectFit"
         />
- 
-        {/* Start CTA overlaid inside the dial when idle */}
+
         {!isRunning && (
           <View className={styles.dialOverlayBtn} onClick={handleStart}>
             <Text className={styles.dialOverlayBtnText}>Start</Text>
           </View>
         )}
       </View>
- 
+
       <Text className={styles.durationText}>
         Duration: <Text className={styles.durationValue}>{durationText}</Text>
       </Text>
- 
-      {/* Pause CTA shown below the dial while running */}
+
       {isRunning && (
         <View className={styles.pauseBtn} onClick={handlePause}>
           <Text className={styles.pauseBtnText}>Pause</Text>
@@ -122,11 +154,8 @@ export function Demo() {
       {/* Stage tracker */}
       <View className={styles.stageWrap}>
         <View className={styles.stageLineBg} />
-        <View
-          className={styles.stageLineActive}
-          style={{ width: `${stageRatio * 75}%` }}
-        />
- 
+        <View className={styles.stageLineActive} style={{ width: `${stageRatio * 75}%` }} />
+
         <View className={styles.stageDotsRow}>
           {STAGE_LABELS.map((label, index) => (
             <View key={label} className={styles.stageItem}>
@@ -147,6 +176,40 @@ export function Demo() {
           <Text className={styles.footerLabel}>Temperature</Text>
         </View>
       </View>
+
+      {/* Program picker modal */}
+      {isProgramPickerOpen && (
+        <View className={styles.modalOverlay} onClick={() => setProgramPickerOpen(false)}>
+          {/* Stop taps inside the card from bubbling up and closing the modal */}
+          <View className={styles.modalCard} onClick={(e: any) => e.stopPropagation?.()}>
+            <Text className={styles.modalTitle}>Select Program</Text>
+
+            <View className={styles.modalList}>
+              {programRange.map((option: string) => (
+                <View
+                  key={option}
+                  className={
+                    option === program ? styles.modalItemActive : styles.modalItem
+                  }
+                  onClick={() => handleSelectProgram(option)}
+                >
+                  <Text
+                    className={
+                      option === program ? styles.modalItemTextActive : styles.modalItemText
+                    }
+                  >
+                    {option.replace(/_/g, ' ')}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            <View className={styles.modalCancel} onClick={() => setProgramPickerOpen(false)}>
+              <Text className={styles.modalCancelText}>Cancel</Text>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

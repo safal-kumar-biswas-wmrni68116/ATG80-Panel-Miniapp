@@ -29,7 +29,8 @@
 
 }
 
-.programPill {
+.programPill,
+.programPillDisabled {
   flex: 1;
   display: flex;
   align-items: center;
@@ -37,6 +38,10 @@
   padding: 0 32rpx;
   border-radius: 48rpx;
   background-color: #ffffff;
+}
+ 
+.programPillDisabled {
+  opacity: 0.55; // signals it can't be tapped while the machine is running
 }
 
 .starIcon {
@@ -85,19 +90,26 @@
   color: #ffffff;
 }
 
-.lockRow {
+.lockRow,
+.lockRowDisabled {
   display: flex;
   align-items: center;
   gap: 12rpx;
   margin-top: 12rpx;
 }
-
-.lockLabel {
+ 
+.lockRowDisabled {
+  opacity: 0.45; // visually signals it can't be tapped right now
+}
+ 
+.lockLabel,
+.lockLabelDisabled {
   font-size: 32rpx;
   color: rgba(255, 255, 255, 0.9);
 }
-
-.lockIcon {
+ 
+.lockIcon,
+.lockIconDisabled {
   width: 50rpx;
   height: 50rpx;
 }
@@ -129,7 +141,7 @@
 }
  
 .dialImageSpinning {
-  animation: spinDial 7s linear infinite;
+  animation: spinDial 10s linear infinite;
 }
 
 
@@ -155,7 +167,7 @@
 
 .durationText {
   text-align: center;
-  font-size: 26rpx;
+  font-size: 34rpx;
   color: rgba(255, 255, 255, 0.85);
   margin-bottom: 24rpx;
 }
@@ -164,6 +176,7 @@
   font-size: 34rpx;
   font-weight: 700;
   color: #ffffff;
+  margin-left: 10rpx;
 }
 
 .pauseBtn {
@@ -194,6 +207,7 @@
 .stageWrap {
   position: relative;
   margin-bottom: 40rpx;
+  margin-top: 40rpx;
 }
  
 .stageLineBg,
@@ -279,3 +293,88 @@
   font-size: 22rpx;
   color: rgba(255, 255, 255, 0.85);
 }
+
+
+ 
+// ---------- Program picker modal ----------
+ 
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+ 
+.modalCard {
+  width: 100%;
+  max-height: 70vh;
+  padding: 32rpx 32rpx 40rpx;
+  border-radius: 32rpx 32rpx 0 0;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+ 
+.modalTitle {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+ 
+.modalList {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+ 
+.modalItem,
+.modalItemActive {
+  padding: 26rpx 24rpx;
+  border-radius: 16rpx;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+ 
+.modalItemActive {
+  background-color: rgba(76, 125, 255, 0.12);
+}
+ 
+.modalItemText,
+.modalItemTextActive {
+  font-size: 28rpx;
+  text-transform: capitalize;
+}
+ 
+.modalItemText {
+  color: #1f2937;
+}
+ 
+.modalItemTextActive {
+  color: #2f6bff;
+  font-weight: 700;
+}
+ 
+.modalCancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  margin-top: 20rpx;
+  border-radius: 44rpx;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+ 
+.modalCancelText {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+}
+ 
