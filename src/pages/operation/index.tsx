@@ -8,6 +8,8 @@ import switchOnImg from '../../res/switch-on@2x.png';
 import lockImg from '../../res/lock@2x.png';
 import unlockImg from '../../res/unlock@2x.png';
 import tempImg from '../../res/temp@2x.png';
+import waterImg from '../../res/water@2x.png';
+import delayImg from '../../res/startTime@2x.png';
 
 // Work-state stages we visualize on the bottom tracker.
 // Maps schema's work_state enum -> a step index.
@@ -169,11 +171,29 @@ export function Demo() {
       </View>
 
       {/* Footer info bar (Temperature is cosmetic — no matching DP exists in schema.ts) */}
-      <View className={styles.footerBar}>
-        <Image className={styles.footerIcon} src={tempImg} mode="aspectFit" />
-        <View>
-          <Text className={styles.footerValue}>0&deg;C</Text>
-          <Text className={styles.footerLabel}>Temperature</Text>
+      <View className={styles.footerContainer}>
+        <View className={styles.footerBar}>
+          <Image className={styles.footerIcon} src={tempImg} mode="aspectFit" />
+          <View>
+            <Text className={styles.footerValue}>0&deg;C</Text>
+            <Text className={styles.footerLabel}>Temperature</Text>
+          </View>
+        </View>
+
+        <View className={styles.footerBar}>
+          <Image className={styles.footerIcon} src={waterImg} mode="aspectFit" />
+          <View>
+            <Text className={styles.footerValue}>{dpState.water_level}</Text>
+            <Text className={styles.footerLabel}>Water Level</Text>
+          </View>
+        </View>
+
+        <View className={styles.footerBar}>
+          <Image className={styles.footerIcon} src={delayImg} mode="aspectFit" />
+          <View>
+            <Text className={styles.footerValue}>{dpState.reserve_time_hour}</Text>
+            <Text className={styles.footerLabel}>Delay Time</Text>
+          </View>
         </View>
       </View>
 

@@ -27,7 +27,7 @@ export function Home() {
     isChildLock.current = true;
     actions.child_lock.set(false);
 
-    navigateTo({ url: '/pages/demo/index' });
+    navigateTo({ url: '/pages/operation/index' });
   };
 
   return (
@@ -39,7 +39,7 @@ export function Home() {
               <Image className={styles.machineImage} src={machineImg} mode="aspectFit" />
               </View>
 
-              <Text className={styles.title}>Washing Machine ATH80W</Text>
+              <Text className={styles.title}>Washing Machine ATG80</Text>
 
               <Text className={styles.helper}>
                 Put your clothes inside the machine{'\n'}and change settings accordingly

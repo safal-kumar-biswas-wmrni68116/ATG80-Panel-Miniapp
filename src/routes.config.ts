@@ -7,8 +7,8 @@ export const routes: Routes = [
     name: 'Home',
   },
   {
-    route: '/demo',
-    path: '/pages/demo/index',
-    name: 'DemoPage',
+    route: '/operation',
+    path: '/pages/operation/index',
+    name: 'Operation',
   },
 ];
