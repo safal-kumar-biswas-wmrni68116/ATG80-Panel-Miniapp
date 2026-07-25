@@ -17,7 +17,7 @@ export function Home() {
 
   useEffect(() => {
     if (isOn === true) {
-      navigateTo({ url: '/pages/operation/index',});
+      navigateTo({ url: '/pages/operation/index'});
     }
   }, [isOn]);
 

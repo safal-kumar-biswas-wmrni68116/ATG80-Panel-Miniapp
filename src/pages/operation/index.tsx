@@ -17,7 +17,7 @@ const STAGE_ORDER = ['soaking', 'washing', 'rinsing', 'dewatering'];
 const STAGE_LABELS = ['Soak', 'Wash', 'Rinse', 'Spin'];
 const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
-export function Demo() {
+export function Operation() {
   const dpSchema = useDpSchema();
   const dpState = useProps(state => state);
   const actions = useActions();
@@ -43,14 +43,6 @@ export function Demo() {
     currentStageIndex <= 0 ? 0 : Math.min(currentStageIndex, STAGE_SEGMENTS) / STAGE_SEGMENTS;
 
 
-  useEffect(() => {
-    if (isOn === false) {
-      navigateTo({ url: '/pages/home/index',});
-      actions.start.set(false);
-      actions.child_lock.set(false);
-    }
-  }, [isOn]);
-
   const handlePowerOff = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
@@ -61,20 +53,6 @@ export function Demo() {
 
     navigateTo({ url: '/pages/home/index' }); // matches the `route` value in routes.config.ts
   };
-
-
-
-
-
-
-  // if(dpState.switch === false) {
-  //   navigateTo({ url: '/pages/home/index' });
-  // }
-
-
-
-
-
 
   // Child lock can only be toggled while the machine is actually running.
   // Tapping it while idle is a no-op — button is visually dimmed to match.
@@ -91,17 +69,37 @@ export function Demo() {
     actions.start.set(false);
   };
 
-  // Any rw parameter (program, water_level, etc.) should be locked while the
-  // machine is running — user must Pause first. Add the same `if (isRunning) return;`
-  // guard to any future rw control you wire up here.
-  // Safety net: if `start` flips to true (e.g. DP updated elsewhere) while
-  // the picker happens to be open, close it rather than leaving an editable
-  // rw control exposed mid-run.
+  
+
+
   useEffect(() => {
     if (isRunning && isProgramPickerOpen) {
       setProgramPickerOpen(false);
     }
   }, [isRunning, isProgramPickerOpen]);
+
+  useEffect(() => {
+    if (isOn === false) {
+      navigateTo({ url: '/pages/home/index',});
+      actions.start.set(false);
+      actions.child_lock.set(false);
+    }
+  }, [isOn]);
+
+  useEffect(() => {
+    if(isLocked && isRunning) {
+      actions.child_lock.set(true);
+    }
+    else {
+      actions.child_lock.set(false);
+
+    }
+  }, [isLocked]);
+
+
+
+
+
 
   const handleOpenProgramPicker = () => {
     if (isRunning) return;
@@ -197,13 +195,13 @@ export function Demo() {
 
       {/* Footer info bar (Temperature is cosmetic — no matching DP exists in schema.ts) */}
       <View className={styles.footerContainer}>
-        <View className={styles.footerBar}>
+        {/* <View className={styles.footerBar}>
           <Image className={styles.footerIcon} src={tempImg} mode="aspectFit" />
           <View>
             <Text className={styles.footerValue}>0&deg;C</Text>
             <Text className={styles.footerLabel}>Temperature</Text>
           </View>
-        </View>
+        </View> */}
 
         <View className={styles.footerBar}>
           <Image className={styles.footerIcon} src={waterImg} mode="aspectFit" />
@@ -217,7 +215,7 @@ export function Demo() {
           <Image className={styles.footerIcon} src={delayImg} mode="aspectFit" />
           <View>
             <Text className={styles.footerValue}>{dpState.reserve_time_hour}</Text>
-            <Text className={styles.footerLabel}>Delay Time</Text>
+            <Text className={styles.footerLabel}>Delay Time (Hour)</Text>
           </View>
         </View>
       </View>
@@ -259,4 +257,4 @@ export function Demo() {
   );
 }
 
-export default Demo;
+export default Operation;
