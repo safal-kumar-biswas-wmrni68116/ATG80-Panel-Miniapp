@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Text, View, Image, navigateTo } from '@ray-js/ray';
 import { NavBar } from '@ray-js/smart-ui';
 import { useDevInfo, useActions, useProps } from '@ray-js/panel-sdk';
@@ -10,21 +10,23 @@ export function Home() {
   const dpState = useProps(state => state);
   const actions = useActions();
   const isNavigating = useRef(false);
-  const isStart = useRef(false);
-  const isChildLock = useRef(false);
 
   const isOn = dpState.switch === true;
+
+
+
+  useEffect(() => {
+    if (isOn === true) {
+      navigateTo({ url: '/pages/operation/index',});
+    }
+  }, [isOn]);
 
 
   const handlePowerClick = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
     actions.switch.set(true);
-
-    isStart.current = true;
     actions.start.set(false);
-
-    isChildLock.current = true;
     actions.child_lock.set(false);
 
     navigateTo({ url: '/pages/operation/index' });

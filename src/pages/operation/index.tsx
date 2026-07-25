@@ -25,6 +25,7 @@ export function Demo() {
 
   const [isProgramPickerOpen, setProgramPickerOpen] = useState(false);
 
+  const isOn = dpState?.switch === true;
   const isRunning = dpState.start === true;
   const isLocked = dpState.child_lock === true;
   const program = dpState.program ?? 'NORMAL';
@@ -41,6 +42,15 @@ export function Demo() {
   const stageRatio =
     currentStageIndex <= 0 ? 0 : Math.min(currentStageIndex, STAGE_SEGMENTS) / STAGE_SEGMENTS;
 
+
+  useEffect(() => {
+    if (isOn === false) {
+      navigateTo({ url: '/pages/home/index',});
+      actions.start.set(false);
+      actions.child_lock.set(false);
+    }
+  }, [isOn]);
+
   const handlePowerOff = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
@@ -51,6 +61,20 @@ export function Demo() {
 
     navigateTo({ url: '/pages/home/index' }); // matches the `route` value in routes.config.ts
   };
+
+
+
+
+
+
+  // if(dpState.switch === false) {
+  //   navigateTo({ url: '/pages/home/index' });
+  // }
+
+
+
+
+
 
   // Child lock can only be toggled while the machine is actually running.
   // Tapping it while idle is a no-op — button is visually dimmed to match.
@@ -89,6 +113,7 @@ export function Demo() {
     actions.program.set(option);
     setProgramPickerOpen(false);
   };
+
 
   return (
     <View className={styles.view}>
