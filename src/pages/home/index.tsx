@@ -4,6 +4,7 @@ import { NavBar } from '@ray-js/smart-ui';
 import { useDevInfo, useActions, useProps } from '@ray-js/panel-sdk';
 import styles from './index.module.less';
 import machineImg from '../../res/logo@3x.png';
+import Strings from '../../i18n';
 
 export function Home() {
   const devInfo = useDevInfo();
@@ -41,16 +42,17 @@ export function Home() {
               <Image className={styles.machineImage} src={machineImg} mode="aspectFit" />
               </View>
 
-              <Text className={styles.title}>Washing Machine ATG80</Text>
+              <Text className={styles.title}>{`${Strings.getLang('WM')} ATG80`}</Text>
 
-              <Text className={styles.helper}>
+              {/* <Text className={styles.helper}>
                 Put your clothes inside the machine{'\n'}and change settings accordingly
-              </Text>
+              </Text> */}
+              <Text className={styles.helper}>{Strings.getLang('start_guide')}</Text>
 
               <View className={styles.footer}>
                 <View className={styles.powerBtn} onClick={handlePowerClick}>
                   <Text className={styles.powerIcon}>&#9211;</Text>
-                  <Text className={styles.powerText}>{isOn ? "ON" : "OFF"}</Text>
+                  <Text className={styles.powerText}>{isOn ? Strings.getLang('on') : Strings.getLang('off')}</Text>
                 </View>
               </View>
           </View>

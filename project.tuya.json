@@ -2,7 +2,7 @@
   "name": "通用 SDM 模板",
   "type": "panel-app",
   "ownerType": "tuya-official",
-  "i18n": false,
+  "i18n": true,
   "miniprogramRoot": "./dist/tuya",
   "projectId": "tyijxdai2dcrdeuwju",
   "dependencies": {

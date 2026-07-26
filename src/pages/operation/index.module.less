@@ -7,7 +7,7 @@
 .view {
   display: flex;
   flex-direction: column;
-  // height: 100vh;
+  min-height: 100vh;
   padding: 40rpx 32rpx 0;
   box-sizing: border-box;
   color: #ffffff;
@@ -58,6 +58,7 @@
 }
 
 .powerCircle {
+  flex-shrink: 0;
   width: 96rpx;
   height: 96rpx;
   border-radius: 25rpx;
@@ -117,6 +118,7 @@
 // ---------- Gradient dial ----------
 
 .dialWrap {
+  flex-shrink: 0;
   position: relative;
   display: flex;
   align-items: center;
@@ -180,12 +182,14 @@
 }
 
 .pauseBtn {
+  flex-shrink: 0; // never let flex compress this — fixes the deform-under-pressure bug
   align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 220rpx;
   height: 84rpx;
+  min-height: 84rpx;
   border-radius: 42rpx;
   background-color: #ffffff;
   box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.15);
@@ -268,14 +272,17 @@
   margin: 80rpx -32rpx 0;
 }
 
-.footerBar {
+.footerBar,
+.footerBarDisabled {
   display: flex;
   align-items: center;
   gap: 24rpx;
   padding: 32rpx;
   background-color: rgba(255, 255, 255, 0.15);
+}
 
-  // border: 2px solid red;
+.footerBarDisabled {
+  opacity: 0.8; // signals it can't be tapped while the machine is running
 }
 
 .footerIcon {
@@ -386,4 +393,48 @@
   font-size: 28rpx;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.6);
+}
+
+// ---------- Number picker modal (water_level / reserve_time_hour) ----------
+ 
+.numberGrid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 4rpx; // keeps the active border from getting clipped at the edges
+}
+ 
+.numberCell,
+.numberCellActive {
+  width: calc(25% - 12rpx); // 4 columns, matching the sketch's grid
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+ 
+.numberCellActive {
+  border-color: #2f6bff;
+  background-color: rgba(76, 125, 255, 0.12);
+}
+ 
+.numberCellText,
+.numberCellTextActive {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+ 
+.numberCellText {
+  color: #1f2937;
+}
+ 
+.numberCellTextActive {
+  color: #2f6bff;
 }
