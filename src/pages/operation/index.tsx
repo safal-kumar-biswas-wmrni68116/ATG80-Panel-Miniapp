@@ -26,6 +26,44 @@ const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
 // error_report's "0" value means "no fault" (E0). Anything else is a real fault.
 const NO_ERROR_CODE = '0';
+const Errors = [
+  {
+    eCode : '1',
+    errorType : Strings.getLang('e1'),
+  },
+  {
+    eCode : '2',
+    errorType : Strings.getLang('e2'),
+  },
+  {
+    eCode : '3',
+    errorType : Strings.getLang('e3'),
+  },
+   {
+    eCode : '4',
+    errorType : Strings.getLang('e4'),
+  },
+  {
+    eCode : '5',
+    errorType : Strings.getLang('e5'),
+  },
+  {
+    eCode : '6',
+    errorType : Strings.getLang('e6'),
+  },
+   {
+    eCode : '7',
+    errorType : Strings.getLang('e7'),
+  },
+  {
+    eCode : '8',
+    errorType : Strings.getLang('e8'),
+  },
+  {
+    eCode : '9',
+    errorType : Strings.getLang('e9'),
+  }
+]
 
 // The two numeric DPs that open a grid picker from the footer bar.
 type NumberPickerKey = 'water_level' | 'reserve_time_hour' | null;
@@ -292,7 +330,9 @@ export function Operation() {
         {hasError && (
           <View className={styles.errorContainer}>
             <Text className={styles.errorValue}>{`E${errorCode}`}</Text>
-            <Text className={styles.errorLabel}>Need to assign Error Name</Text>
+            <Text className={styles.errorLabel}>
+              {Errors.find(e => e.eCode === errorCode)?.errorType ?? 'Unknown Error'}
+              </Text>
           </View>
         )}
 

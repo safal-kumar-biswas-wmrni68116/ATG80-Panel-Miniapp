@@ -53,6 +53,17 @@ export default {
     dp_work_state_stop: 'Paused',
     dp_work_state_complete: 'Complete',
     dp_work_state_error: 'Fault',
+
+    // ----- Errors ---------
+    e1 : 'Some Error 1',
+    e2 : 'Some Error 2',
+    e3 : 'Some Error 3',
+    e4 : 'Some Error 4',
+    e5 : 'Some Error 5',
+    e6 : 'Some Error 6',
+    e7 : 'Some Error 7',
+    e8 : 'Some Error 8',
+    e9 : 'Some Error 9',
   },
   zh: {
     // ----- Existing custom UI text (blanks / mistranslations fixed) -----
@@ -107,5 +118,16 @@ export default {
     dp_work_state_stop: '暂停',
     dp_work_state_complete: '完成',
     dp_work_state_error: '故障',
+
+    // ----- Errors ---------
+    e1 : 'Some Error 1',
+    e2 : 'Some Error 2',
+    e3 : 'Some Error 3',
+    e4 : 'Some Error 4',
+    e5 : 'Some Error 5',
+    e6 : 'Some Error 6',
+    e7 : 'Some Error 7',
+    e8 : 'Some Error 8',
+    e9 : 'Some Error 9',
   },
 };
