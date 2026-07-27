@@ -261,6 +261,17 @@ export function Operation() {
 
       {/* Footer info bar — Water Level and Delay Time are now tappable */}
       <View className={styles.footerContainer}>
+
+        {/* Error Display */}
+        <View
+          className={isRunning ? styles.footerBarDisabled : styles.footerBar}
+        >
+          <View className={styles.errorContainer}>
+            <Text className={styles.errorValue}>{`E${dpState?.error_report}`}</Text>
+            <Text className={styles.errorLabel}>Need to assign Error Name</Text>
+          </View>
+        </View>
+
         <View
           className={isRunning ? styles.footerBarDisabled : styles.footerBar}
           onClick={() => handleOpenNumberPicker('water_level')}
