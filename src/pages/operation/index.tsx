@@ -16,7 +16,7 @@ import delayImg from '../../res/startTime@2x.png';
 // Work-state stages we visualize on the bottom tracker.
 // Maps schema's work_state enum -> a step index.
 const STAGE_ORDER = ['soaking', 'washing', 'rinsing', 'dewatering'];
-const STAGE_LABELS = [ 
+const STAGE_LABELS = [
   Strings.getLang('soak'),
   Strings.getLang('wash'),
   Strings.getLang('rinse'),
@@ -55,7 +55,6 @@ export function Operation() {
   const stageRatio =
     currentStageIndex <= 0 ? 0 : Math.min(currentStageIndex, STAGE_SEGMENTS) / STAGE_SEGMENTS;
 
-
   const handlePowerOff = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
@@ -79,11 +78,9 @@ export function Operation() {
   };
 
   const handlePause = () => {
+    if (isLocked) return;
     actions.start.set(false);
   };
-
-  
-
 
   // useEffect(() => {
   //   if (isRunning && isProgramPickerOpen) {
@@ -102,23 +99,19 @@ export function Operation() {
 
   useEffect(() => {
     if (isOn === false) {
-      navigateTo({ url: '/pages/home/index',});
+      navigateTo({ url: '/pages/home/index' });
       actions.start.set(false);
       actions.child_lock.set(false);
     }
   }, [isOn]);
 
   useEffect(() => {
-    if(isLocked && isRunning) {
+    if (isLocked && isRunning) {
       actions.child_lock.set(true);
-    }
-    else {
+    } else {
       actions.child_lock.set(false);
-
     }
   }, [isLocked]);
-
-
 
   const handleOpenProgramPicker = () => {
     if (isRunning) return;
@@ -136,17 +129,17 @@ export function Operation() {
     if (isRunning) return;
     setActiveNumberPicker(dpCode);
   };
- 
+
   const handleSelectNumberValue = (option: string) => {
     if (isRunning || !activeNumberPicker) return;
     actions[activeNumberPicker].set(option);
     setActiveNumberPicker(null);
   };
- 
+
   // Small lookup so the modal title/current-value logic can stay generic
   // instead of branching on which DP is active everywhere.
   const numberPickerConfig =
-    activeNumberPicker === 'water_level'  
+    activeNumberPicker === 'water_level'
       ? {
           titleKey: Strings.getLang('selectWaterLevel'),
           range: waterLevelRange,
@@ -161,9 +154,7 @@ export function Operation() {
       : null;
 
   return (
-    
     <View className={styles.view}>
-
       {/* <Text>{Strings.getLang('errorText')}</Text> */}
 
       {/* Top row: program pill + power button */}
@@ -223,8 +214,13 @@ export function Operation() {
       </Text>
 
       {isRunning && (
-        <View className={styles.pauseBtn} onClick={handlePause}>
-          <Text className={styles.pauseBtnText}>{Strings.getLang('pause')}</Text>
+        <View
+          className={isLocked ? styles.pauseBtnDisabled : styles.pauseBtn}
+          onClick={handlePause}
+        >
+          <Text className={isLocked ? styles.pauseBtnTextDisabled : styles.pauseBtnText}>
+            {Strings.getLang('pause')}
+          </Text>
         </View>
       )}
 
@@ -257,7 +253,7 @@ export function Operation() {
             <Text className={styles.footerLabel}>{Strings.getLang('waterLevel')}</Text>
           </View>
         </View>
- 
+
         <View
           className={isRunning ? styles.footerBarDisabled : styles.footerBar}
           onClick={() => handleOpenNumberPicker('reserve_time_hour')}
@@ -275,7 +271,7 @@ export function Operation() {
         <View className={styles.modalOverlay} onClick={() => setProgramPickerOpen(false)}>
           <View className={styles.modalCard} onClick={(e: any) => e.stopPropagation?.()}>
             <Text className={styles.modalTitle}>{Strings.getLang('selectProgram')}</Text>
- 
+
             <View className={styles.modalList}>
               {programRange.map((option: string) => (
                 <View
@@ -293,7 +289,7 @@ export function Operation() {
                 </View>
               ))}
             </View>
- 
+
             <View className={styles.modalCancel} onClick={() => setProgramPickerOpen(false)}>
               <Text className={styles.modalCancelText}>{Strings.getLang('cancel')}</Text>
             </View>
@@ -301,13 +297,12 @@ export function Operation() {
         </View>
       )}
 
-
-       {/* Number picker modal (grid style) — water_level / reserve_time_hour */}
+      {/* Number picker modal (grid style) — water_level / reserve_time_hour */}
       {numberPickerConfig && (
         <View className={styles.modalOverlay} onClick={() => setActiveNumberPicker(null)}>
           <View className={styles.modalCard} onClick={(e: any) => e.stopPropagation?.()}>
             <Text className={styles.modalTitle}>{numberPickerConfig.titleKey}</Text>
- 
+
             <View className={styles.numberGrid}>
               {numberPickerConfig.range.map((option: string) => (
                 <View
@@ -331,15 +326,13 @@ export function Operation() {
                 </View>
               ))}
             </View>
- 
+
             <View className={styles.modalCancel} onClick={() => setActiveNumberPicker(null)}>
               <Text className={styles.modalCancelText}>{Strings.getLang('cancel')}</Text>
             </View>
           </View>
         </View>
       )}
-
-
     </View>
   );
 }

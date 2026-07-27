@@ -181,7 +181,8 @@
   margin-left: 10rpx;
 }
 
-.pauseBtn {
+.pauseBtn,
+.pauseBtnDisabled {
   flex-shrink: 0; // never let flex compress this — fixes the deform-under-pressure bug
   align-self: center;
   display: flex;
@@ -194,6 +195,11 @@
   background-color: #ffffff;
   box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.15);
   margin-bottom: 32rpx;
+}
+
+.pauseBtnDisabled {
+  opacity: 0.5; // signals it's locked and can't be tapped
+  box-shadow: none;
 }
 
 .pauseBtnText {
@@ -282,7 +288,7 @@
 }
 
 .footerBarDisabled {
-  opacity: 0.8; // signals it can't be tapped while the machine is running
+  opacity: 0.5; // signals it can't be tapped while the machine is running
 }
 
 .footerIcon {
