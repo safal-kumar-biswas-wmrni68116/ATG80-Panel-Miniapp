@@ -24,6 +24,9 @@ const STAGE_LABELS = [
 ];
 const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
+// error_report's "0" value means "no fault" (E0). Anything else is a real fault.
+const NO_ERROR_CODE = '0';
+
 // The two numeric DPs that open a grid picker from the footer bar.
 type NumberPickerKey = 'water_level' | 'reserve_time_hour' | null;
 
@@ -42,6 +45,16 @@ export function Operation() {
   const program = dpState?.program ?? 'NORMAL';
   const workState = dpState?.work_state ?? 'shut_down';
 
+  // Treat a missing error_report the same as "0" (no fault) so we never
+  // flash an error box before the DP has reported in.
+  const errorCode = String(dpState?.error_report ?? NO_ERROR_CODE);
+  const hasError = errorCode !== NO_ERROR_CODE;
+
+  // Anything that would normally be locked while the machine is running is
+  // ALSO locked while there's an active fault. Only the power button stays
+  // interactive when hasError is true.
+  const controlsLocked = isRunning || hasError;
+
   // Program options pulled live from schema, not hardcoded
   const programRange = dpSchema?.program?.property?.range ?? [];
   const waterLevelRange = dpSchema?.water_level?.property?.range ?? [];
@@ -58,7 +71,7 @@ export function Operation() {
   const handlePowerOff = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
-
+ 
     actions.switch.set(false);
     actions.start.set(false);
     actions.child_lock.set(false);
@@ -67,13 +80,15 @@ export function Operation() {
   };
 
   // Child lock can only be toggled while the machine is actually running.
-  // Tapping it while idle is a no-op — button is visually dimmed to match.
+  // Tapping it while idle (or while a fault is active) is a no-op — button
+  // is visually dimmed to match.
   const handleToggleChildLock = () => {
-    if (!isRunning) return;
+    if (!isRunning || hasError) return;
     actions.child_lock.set(!isLocked);
   };
 
   const handleStart = () => {
+    if (hasError) return;
     actions.start.set(true);
   };
 
@@ -105,25 +120,38 @@ export function Operation() {
     }
   }, [isLocked]);
 
+  // A real fault (anything other than E0) forces the machine into a paused
+  // state, and closes any open picker so the user can't queue up a change
+  // while things are locked down.
+  useEffect(() => {
+    if (hasError) {
+      if (isRunning) {
+        actions.start.set(false);
+      }
+      setProgramPickerOpen(false);
+      setActiveNumberPicker(null);
+    }
+  }, [hasError]);
+
   const handleOpenProgramPicker = () => {
-    if (isRunning) return;
+    if (controlsLocked) return;
     setProgramPickerOpen(true);
   };
 
   const handleSelectProgram = (option: string) => {
-    if (isRunning) return; // extra guard in case the modal was already open when start flipped true
+    if (controlsLocked) return; // extra guard in case the modal was already open when start/error flipped
     actions.program.set(option);
     setProgramPickerOpen(false);
   };
 
   // Opens the grid picker for either water_level or reserve_time_hour
   const handleOpenNumberPicker = (dpCode: NumberPickerKey) => {
-    if (isRunning) return;
+    if (controlsLocked) return;
     setActiveNumberPicker(dpCode);
   };
 
   const handleSelectNumberValue = (option: string) => {
-    if (isRunning || !activeNumberPicker) return;
+    if (controlsLocked || !activeNumberPicker) return;
     actions[activeNumberPicker].set(option);
     setActiveNumberPicker(null);
   };
@@ -152,7 +180,7 @@ export function Operation() {
       {/* Top row: program pill + power button */}
       <View className={styles.topRow}>
         <View
-          className={isRunning ? styles.programPillDisabled : styles.programPill}
+          className={controlsLocked ? styles.programPillDisabled : styles.programPill}
           onClick={handleOpenProgramPicker}
         >
           <Text className={styles.starIcon}>&#9733;</Text>
@@ -167,11 +195,11 @@ export function Operation() {
       {/* Work state + child lock row */}
       <View className={styles.statusRow}>
         <Text className={styles.stateText}>{getDpLabel('work_state', workState)}</Text>
- 
+
         <View>
           <View
             className={
-              !isRunning
+              !isRunning || hasError
                 ? styles.lockRowDisabled
                 : isLocked
                 ? styles.lockRowLocked
@@ -181,7 +209,7 @@ export function Operation() {
           >
             <Text
               className={
-                !isRunning
+                !isRunning || hasError
                   ? styles.lockLabelDisabled
                   : isLocked
                   ? styles.lockLabelLocked
@@ -192,7 +220,7 @@ export function Operation() {
             </Text>
             <Image
               className={
-                !isRunning
+                !isRunning || hasError
                   ? styles.lockIconDisabled
                   : isLocked
                   ? styles.lockIconLocked
@@ -202,15 +230,12 @@ export function Operation() {
               mode="aspectFit"
             />
           </View>
- 
-          {isLocked && (
+
+          {isLocked && !hasError && (
             <Text className={styles.unlockHint}>{Strings.getLang('tapToUnlock')}</Text>
           )}
         </View>
       </View>
-
-
-
 
       {/* Gradient dial */}
       <View className={styles.dialWrap}>
@@ -220,7 +245,8 @@ export function Operation() {
           mode="aspectFit"
         />
 
-        {!isRunning && (
+        {/* Hidden entirely during a fault — starting isn't allowed until it clears */}
+        {!controlsLocked && (
           <View className={styles.dialOverlayBtn} onClick={handleStart}>
             <Text className={styles.dialOverlayBtnText}>{Strings.getLang('start')}</Text>
           </View>
@@ -259,21 +285,19 @@ export function Operation() {
         </View>
       </View>
 
-      {/* Footer info bar — Water Level and Delay Time are now tappable */}
+      {/* Footer info bar — Water Level and Delay Time are tappable unless locked */}
       <View className={styles.footerContainer}>
-
-        {/* Error Display */}
-        <View
-          className={isRunning ? styles.footerBarDisabled : styles.footerBar}
-        >
+        {/* Error banner — only rendered while there's an active fault (error_report != E0),
+            and flashes to draw attention. Absent entirely when there's no fault. */}
+        {hasError && (
           <View className={styles.errorContainer}>
-            <Text className={styles.errorValue}>{`E${dpState?.error_report}`}</Text>
+            <Text className={styles.errorValue}>{`E${errorCode}`}</Text>
             <Text className={styles.errorLabel}>Need to assign Error Name</Text>
           </View>
-        </View>
+        )}
 
         <View
-          className={isRunning ? styles.footerBarDisabled : styles.footerBar}
+          className={controlsLocked ? styles.footerBarDisabled : styles.footerBar}
           onClick={() => handleOpenNumberPicker('water_level')}
         >
           <Image className={styles.footerIcon} src={waterImg} mode="aspectFit" />
@@ -284,7 +308,7 @@ export function Operation() {
         </View>
 
         <View
-          className={isRunning ? styles.footerBarDisabled : styles.footerBar}
+          className={controlsLocked ? styles.footerBarDisabled : styles.footerBar}
           onClick={() => handleOpenNumberPicker('reserve_time_hour')}
         >
           <Image className={styles.footerIcon} src={delayImg} mode="aspectFit" />

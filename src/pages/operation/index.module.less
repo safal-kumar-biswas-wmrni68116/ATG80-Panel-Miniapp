@@ -41,7 +41,7 @@
 }
  
 .programPillDisabled {
-  opacity: 0.55; // signals it can't be tapped while the machine is running
+  opacity: 0.55; // signals it can't be tapped while the machine is running or faulted
 }
 
 .starIcon {
@@ -101,7 +101,7 @@
 }
  
 .lockRowDisabled {
-  opacity: 0.45; // visually signals it can't be tapped right now
+  opacity: 0.45; // visually signals it can't be tapped right now (idle or faulted)
 }
  
 // Locked state gets its own pill so it visually separates from plain text —
@@ -364,7 +364,7 @@
 }
 
 .footerBarDisabled {
-  opacity: 0.5; // signals it can't be tapped while the machine is running
+  opacity: 0.5; // signals it can't be tapped while the machine is running or faulted
 }
 
 .footerIcon {
@@ -388,18 +388,32 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+// Error banner — only mounted in the DOM while error_report != "0" (E0 = no fault),
+// so it's absent by default and pops into this spot the instant a real fault
+// is reported. Flashes continuously to demand attention while active.
 .errorContainer {
-
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
   margin: auto;
   padding: 24rpx;
   width: 100vw;
 
+  border: 7rpx solid rgba(255, 59, 59, 0.9);
+  animation: errorFlash 1s ease-in-out infinite;
+}
 
-  border: 7rpx solid rgba(255, 255, 255, 0.85);
+@keyframes errorFlash {
+  0%,
+  100% {
+    background-color: rgba(255, 59, 59, 0.15);
+    border-color: rgba(255, 59, 59, 0.85);
+  }
+  50% {
+    background-color: rgba(255, 59, 59, 0.4);
+    border-color: rgba(255, 59, 59, 1);
+  }
 }
 
 .errorValue {
