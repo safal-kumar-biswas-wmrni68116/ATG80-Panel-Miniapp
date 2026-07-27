@@ -82,14 +82,6 @@ export function Operation() {
     actions.start.set(false);
   };
 
-  // useEffect(() => {
-  //   if (isRunning && isProgramPickerOpen) {
-  //     setProgramPickerOpen(false);
-  //   }
-  // }, [isRunning, isProgramPickerOpen]);
-
-  // Close any open picker (program OR number) once the machine starts
-  // running, since all rw params are locked while running.
   useEffect(() => {
     if (isRunning) {
       setProgramPickerOpen(false);
@@ -174,25 +166,51 @@ export function Operation() {
 
       {/* Work state + child lock row */}
       <View className={styles.statusRow}>
-        <Text className={styles.stateText}>
-          {/* {String(workState).replace(/_/g, ' ')} */}
-          {getDpLabel('work_state', workState)}
-        </Text>
-
-        <View
-          className={isRunning ? styles.lockRow : styles.lockRowDisabled}
-          onClick={handleToggleChildLock}
-        >
-          <Text className={isRunning ? styles.lockLabel : styles.lockLabelDisabled}>
-            {Strings.getLang('childLock')}
-          </Text>
-          <Image
-            className={isRunning ? styles.lockIcon : styles.lockIconDisabled}
-            src={isLocked ? lockImg : unlockImg}
-            mode="aspectFit"
-          />
+        <Text className={styles.stateText}>{getDpLabel('work_state', workState)}</Text>
+ 
+        <View>
+          <View
+            className={
+              !isRunning
+                ? styles.lockRowDisabled
+                : isLocked
+                ? styles.lockRowLocked
+                : styles.lockRow
+            }
+            onClick={handleToggleChildLock}
+          >
+            <Text
+              className={
+                !isRunning
+                  ? styles.lockLabelDisabled
+                  : isLocked
+                  ? styles.lockLabelLocked
+                  : styles.lockLabel
+              }
+            >
+              {Strings.getLang('childLock')}
+            </Text>
+            <Image
+              className={
+                !isRunning
+                  ? styles.lockIconDisabled
+                  : isLocked
+                  ? styles.lockIconLocked
+                  : styles.lockIcon
+              }
+              src={isLocked ? lockImg : unlockImg}
+              mode="aspectFit"
+            />
+          </View>
+ 
+          {isLocked && (
+            <Text className={styles.unlockHint}>{Strings.getLang('tapToUnlock')}</Text>
+          )}
         </View>
       </View>
+
+
+
 
       {/* Gradient dial */}
       <View className={styles.dialWrap}>

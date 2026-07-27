@@ -21,6 +21,8 @@ export default {
     rinse: 'Rinse',
     spin: 'Spin',
 
+    tapToUnlock: 'Tap to unlock',
+
     // ----- Added: program picker modal text (was hardcoded in index.tsx) -----
     selectProgram: 'Select Program',
     selectWaterLevel: 'Select Water Level',
@@ -72,6 +74,8 @@ export default {
     wash: '洗涤',
     rinse: '漂洗',
     spin: '脱水',
+
+    tapToUnlock: '点击解锁',
 
     // ----- Added: program picker modal text -----
     selectProgram: '选择程序',
