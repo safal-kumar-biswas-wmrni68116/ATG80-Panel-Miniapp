@@ -26,44 +26,21 @@ const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
 // error_report's "0" value means "no fault" (E0). Anything else is a real fault.
 const NO_ERROR_CODE = '0';
+
+// Lookup table mapping each error_report code -> its display label.
+// Matches schema's error_report range ("0".."9"); "0" is excluded on purpose
+// since it means "no fault" and is never shown.
 const Errors = [
-  {
-    eCode : '1',
-    errorType : Strings.getLang('e1'),
-  },
-  {
-    eCode : '2',
-    errorType : Strings.getLang('e2'),
-  },
-  {
-    eCode : '3',
-    errorType : Strings.getLang('e3'),
-  },
-   {
-    eCode : '4',
-    errorType : Strings.getLang('e4'),
-  },
-  {
-    eCode : '5',
-    errorType : Strings.getLang('e5'),
-  },
-  {
-    eCode : '6',
-    errorType : Strings.getLang('e6'),
-  },
-   {
-    eCode : '7',
-    errorType : Strings.getLang('e7'),
-  },
-  {
-    eCode : '8',
-    errorType : Strings.getLang('e8'),
-  },
-  {
-    eCode : '9',
-    errorType : Strings.getLang('e9'),
-  }
-]
+  { eCode: '1', errorType: Strings.getLang('e1') },
+  { eCode: '2', errorType: Strings.getLang('e2') },
+  { eCode: '3', errorType: Strings.getLang('e3') },
+  { eCode: '4', errorType: Strings.getLang('e4') },
+  { eCode: '5', errorType: Strings.getLang('e5') },
+  { eCode: '6', errorType: Strings.getLang('e6') },
+  { eCode: '7', errorType: Strings.getLang('e7') },
+  { eCode: '8', errorType: Strings.getLang('e8') },
+  { eCode: '9', errorType: Strings.getLang('e9') },
+];
 
 // The two numeric DPs that open a grid picker from the footer bar.
 type NumberPickerKey = 'water_level' | 'reserve_time_hour' | null;
@@ -72,6 +49,10 @@ export function Operation() {
   const dpSchema = useDpSchema();
   const dpState = useProps(state => state);
   const actions = useActions();
+
+  // Used ONLY to debounce handlePowerOff itself (stop a double-tap from
+  // firing navigateTo twice in the same tick). Nothing else should read or
+  // write this ref — see the note in the `isOn` effect below for why.
   const isNavigating = useRef(false);
 
   const [isProgramPickerOpen, setProgramPickerOpen] = useState(false);
@@ -87,6 +68,10 @@ export function Operation() {
   // flash an error box before the DP has reported in.
   const errorCode = String(dpState?.error_report ?? NO_ERROR_CODE);
   const hasError = errorCode !== NO_ERROR_CODE;
+
+  // Human-readable label for the current fault. Falls back to a generic
+  // string if the reported code isn't in our lookup table yet.
+  const errorLabel = Errors.find(e => e.eCode === errorCode)?.errorType ?? 'Unknown Error';
 
   // Anything that would normally be locked while the machine is running is
   // ALSO locked while there's an active fault. Only the power button stays
@@ -109,7 +94,7 @@ export function Operation() {
   const handlePowerOff = () => {
     if (isNavigating.current) return;
     isNavigating.current = true;
- 
+
     actions.switch.set(false);
     actions.start.set(false);
     actions.child_lock.set(false);
@@ -141,12 +126,12 @@ export function Operation() {
       setActiveNumberPicker(null);
     }
   }, [isRunning]);
-
+  
   useEffect(() => {
     if (isOn === false) {
-      navigateTo({ url: '/pages/home/index' });
       actions.start.set(false);
       actions.child_lock.set(false);
+      navigateTo({ url: '/pages/home/index' });
     }
   }, [isOn]);
 
@@ -330,9 +315,7 @@ export function Operation() {
         {hasError && (
           <View className={styles.errorContainer}>
             <Text className={styles.errorValue}>{`E${errorCode}`}</Text>
-            <Text className={styles.errorLabel}>
-              {Errors.find(e => e.eCode === errorCode)?.errorType ?? 'Unknown Error'}
-              </Text>
+            <Text className={styles.errorLabel}>{errorLabel}</Text>
           </View>
         )}
 
