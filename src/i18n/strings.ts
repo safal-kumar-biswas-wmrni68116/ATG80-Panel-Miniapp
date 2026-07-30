@@ -15,6 +15,7 @@ export default {
     duration: 'Duration',
     waterLevel: 'Water Level',
     delayTime: 'Delay Time (Hour)',
+    airDryTime: 'Air Dry Time',
 
     soak: 'Soak',
     wash: 'Wash',
@@ -27,6 +28,7 @@ export default {
     selectProgram: 'Select Program',
     selectWaterLevel: 'Select Water Level',
     selectDelayTime: 'Select Delay Hour',
+    selectAirDryTime: 'Select Air Dry Time',
     cancel: 'Cancel',
 
     // ----- Added: `program` DP values -----
@@ -80,6 +82,7 @@ export default {
     duration: '持续时间',
     waterLevel: '水位',
     delayTime: '延迟时间（小时）',
+    airDryTime: '风干时间',
 
     soak: '浸泡',
     wash: '洗涤',
@@ -92,6 +95,7 @@ export default {
     selectProgram: '选择程序',
     selectWaterLevel: '选择水位',
     selectDelayTime: '选择延迟小时',
+    selectAirDryTime: '选择风干时间',
     cancel: '取消',
 
     // ----- Added: `program` DP values -----

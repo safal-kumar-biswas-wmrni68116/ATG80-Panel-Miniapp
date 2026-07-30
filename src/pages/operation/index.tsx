@@ -12,6 +12,7 @@ import lockImg from '../../res/lock@2x.png';
 import unlockImg from '../../res/unlock@2x.png';
 import waterImg from '../../res/water@2x.png';
 import delayImg from '../../res/startTime@2x.png';
+import airDryImg from '../../res/cloth-type/wind@2x.png'
 
 // Work-state stages we visualize on the bottom tracker.
 // Maps schema's work_state enum -> a step index.
@@ -24,8 +25,8 @@ const STAGE_LABELS = [
 ];
 const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
-// The two numeric DPs that open a grid picker from the footer bar.
-type NumberPickerKey = 'water_level' | 'reserve_time_hour' | null;
+// The numeric DPs that open a grid picker from the footer bar.
+type NumberPickerKey = 'water_level' | 'reserve_time_hour' | 'drytime' | null;
 
 // error_report "0" == "No fault" / E0 in schema.ts + the i18n export.
 // Any other value means a real fault is being reported.
@@ -82,6 +83,8 @@ export function Operation() {
   const currentPreset = PROGRAM_PRESETS[program];
   const waterLevelRange =
     currentPreset?.available_water_level ?? dpSchema?.water_level?.property?.range ?? [];
+  const isAirDryProgram = program === 'AIR_DRY';
+  const drytimeRange = dpSchema?.drytime?.property?.range ?? [];
   const delayTimeRange = dpSchema?.reserve_time_hour?.property?.range ?? [];
 
   // remain_time is in minutes (per schema) -> format as MM:00
@@ -240,6 +243,13 @@ export function Operation() {
           range: delayTimeRange,
           currentValue: dpState?.reserve_time_hour,
         }
+      : activeNumberPicker === 'drytime'
+      ? {
+          // NEW: Air Dry Time picker — only ever opened when isAirDryProgram is true
+          titleKey: Strings.getLang('selectAirDryTime'),
+          range: drytimeRange,
+          currentValue: dpState?.drytime,
+        }
       : null;
 
   return (
@@ -358,9 +368,7 @@ export function Operation() {
       {hasError && (
         <View className={styles.errorBanner}>
           <Text className={styles.errorBannerCode}>{`E${errorCode}`}</Text>
-          <Text className={styles.errorBannerText}>
-            {getDpLabel('error_report', errorCode)}
-          </Text>
+          <Text className={styles.errorBannerText}>{errorLabel}</Text>
         </View>
       )}
 
@@ -368,12 +376,20 @@ export function Operation() {
       <View className={styles.footerContainer}>
         <View
           className={controlsLocked ? styles.footerBarDisabled : styles.footerBar}
-          onClick={() => handleOpenNumberPicker('water_level')}
+          onClick={() => handleOpenNumberPicker(isAirDryProgram ? 'drytime' : 'water_level')}
         >
-          <Image className={styles.footerIcon} src={waterImg} mode="aspectFit" />
+          <Image
+            className={styles.footerIcon}
+            src={isAirDryProgram ? airDryImg : waterImg}
+            mode="aspectFit"
+          />
           <View>
-            <Text className={styles.footerValue}>{dpState?.water_level}</Text>
-            <Text className={styles.footerLabel}>{Strings.getLang('waterLevel')}</Text>
+            <Text className={styles.footerValue}>
+              {isAirDryProgram ? dpState?.drytime : dpState?.water_level}
+            </Text>
+            <Text className={styles.footerLabel}>
+              {isAirDryProgram ? Strings.getLang('airDryTime') : Strings.getLang('waterLevel')}
+            </Text>
           </View>
         </View>
 
