@@ -391,12 +391,12 @@
 // Error banner — only mounted in the DOM while error_report != "0" (E0 = no fault),
 // so it's absent by default and pops into this spot the instant a real fault
 // is reported. Flashes continuously to demand attention while active.
-.errorContainer {
+.errorBanner {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: auto;
+  margin: 0 -16;
   padding: 24rpx;
   width: 100vw;
 
@@ -407,23 +407,23 @@
 @keyframes errorFlash {
   0%,
   100% {
-    background-color: rgba(255, 59, 59, 0.15);
+    background-color: rgba(239, 61, 61, 0.15);
     border-color: rgba(255, 59, 59, 0.85);
   }
   50% {
-    background-color: rgba(255, 59, 59, 0.4);
+    background-color: rgba(240, 56, 56, 0.4);
     border-color: rgba(255, 59, 59, 1);
   }
 }
 
-.errorValue {
+.errorBannerCode {
   display: block;
   font-size: 38rpx;
   font-weight: 700;
   color: #ffffff;
 }
 
-.errorLabel {
+.errorBannerText {
   display: block;
   font-size: 30rpx;
   color: rgba(255, 255, 255, 0.85);

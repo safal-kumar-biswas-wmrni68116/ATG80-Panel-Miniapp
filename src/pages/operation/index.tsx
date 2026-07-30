@@ -4,12 +4,12 @@ import { useActions, useDpSchema, useProps } from '@ray-js/panel-sdk';
 import styles from './index.module.less';
 import Strings from '../../i18n';
 import { getDpLabel } from '../../i18n/getDpLabel';
+import { PROGRAM_PRESETS } from './programPresets';
 
 import circleImg from '../../res/banner@2x.png';
 import switchOnImg from '../../res/switch-on@2x.png';
 import lockImg from '../../res/lock@2x.png';
 import unlockImg from '../../res/unlock@2x.png';
-import tempImg from '../../res/temp@2x.png';
 import waterImg from '../../res/water@2x.png';
 import delayImg from '../../res/startTime@2x.png';
 
@@ -24,12 +24,12 @@ const STAGE_LABELS = [
 ];
 const STAGE_SEGMENTS = STAGE_LABELS.length - 1; // 3 gaps between 4 dots
 
-// error_report's "0" value means "no fault" (E0). Anything else is a real fault.
-const NO_ERROR_CODE = '0';
+// The two numeric DPs that open a grid picker from the footer bar.
+type NumberPickerKey = 'water_level' | 'reserve_time_hour' | null;
 
-// Lookup table mapping each error_report code -> its display label.
-// Matches schema's error_report range ("0".."9"); "0" is excluded on purpose
-// since it means "no fault" and is never shown.
+// error_report "0" == "No fault" / E0 in schema.ts + the i18n export.
+// Any other value means a real fault is being reported.
+const NO_ERROR_CODE = '0';
 const Errors = [
   { eCode: '1', errorType: Strings.getLang('e1') },
   { eCode: '2', errorType: Strings.getLang('e2') },
@@ -42,17 +42,11 @@ const Errors = [
   { eCode: '9', errorType: Strings.getLang('e9') },
 ];
 
-// The two numeric DPs that open a grid picker from the footer bar.
-type NumberPickerKey = 'water_level' | 'reserve_time_hour' | null;
 
 export function Operation() {
   const dpSchema = useDpSchema();
   const dpState = useProps(state => state);
   const actions = useActions();
-
-  // Used ONLY to debounce handlePowerOff itself (stop a double-tap from
-  // firing navigateTo twice in the same tick). Nothing else should read or
-  // write this ref — see the note in the `isOn` effect below for why.
   const isNavigating = useRef(false);
 
   const [isProgramPickerOpen, setProgramPickerOpen] = useState(false);
@@ -64,6 +58,7 @@ export function Operation() {
   const program = dpState?.program ?? 'NORMAL';
   const workState = dpState?.work_state ?? 'shut_down';
 
+  // ===== ERROR HANDLING =====
   // Treat a missing error_report the same as "0" (no fault) so we never
   // flash an error box before the DP has reported in.
   const errorCode = String(dpState?.error_report ?? NO_ERROR_CODE);
@@ -73,14 +68,20 @@ export function Operation() {
   // string if the reported code isn't in our lookup table yet.
   const errorLabel = Errors.find(e => e.eCode === errorCode)?.errorType ?? 'Unknown Error';
 
-  // Anything that would normally be locked while the machine is running is
-  // ALSO locked while there's an active fault. Only the power button stays
-  // interactive when hasError is true.
+  // While an error is present, every control except the power button is
+  // locked out — this OR's together with the existing isRunning gate so
+  // both "machine running" and "machine faulted" produce the same
+  // only-power-active behavior.
   const controlsLocked = isRunning || hasError;
 
   // Program options pulled live from schema, not hardcoded
   const programRange = dpSchema?.program?.property?.range ?? [];
-  const waterLevelRange = dpSchema?.water_level?.property?.range ?? [];
+  // Water level options are scoped to whatever the CURRENT program allows —
+  // falls back to the full DP range if the selected program has no preset
+  // (shouldn't normally happen, but keeps the picker usable either way).
+  const currentPreset = PROGRAM_PRESETS[program];
+  const waterLevelRange =
+    currentPreset?.available_water_level ?? dpSchema?.water_level?.property?.range ?? [];
   const delayTimeRange = dpSchema?.reserve_time_hour?.property?.range ?? [];
 
   // remain_time is in minutes (per schema) -> format as MM:00
@@ -102,16 +103,15 @@ export function Operation() {
     navigateTo({ url: '/pages/home/index' }); // matches the `route` value in routes.config.ts
   };
 
-  // Child lock can only be toggled while the machine is actually running.
-  // Tapping it while idle (or while a fault is active) is a no-op — button
-  // is visually dimmed to match.
+  // Child lock can only be toggled while the machine is actually running
+  // AND there's no active fault.
   const handleToggleChildLock = () => {
     if (!isRunning || hasError) return;
     actions.child_lock.set(!isLocked);
   };
 
   const handleStart = () => {
-    if (hasError) return;
+    if (controlsLocked) return; // can't start into/through a fault
     actions.start.set(true);
   };
 
@@ -126,12 +126,12 @@ export function Operation() {
       setActiveNumberPicker(null);
     }
   }, [isRunning]);
-  
+
   useEffect(() => {
     if (isOn === false) {
+      navigateTo({ url: '/pages/home/index' });
       actions.start.set(false);
       actions.child_lock.set(false);
-      navigateTo({ url: '/pages/home/index' });
     }
   }, [isOn]);
 
@@ -143,18 +143,51 @@ export function Operation() {
     }
   }, [isLocked]);
 
-  // A real fault (anything other than E0) forces the machine into a paused
-  // state, and closes any open picker so the user can't queue up a change
-  // while things are locked down.
+  // ===== ERROR HANDLING =====
+  // The moment a fault is reported while the machine is running, force it
+  // into a paused state. Runs whenever hasError or isRunning changes, so it
+  // self-corrects even if `start` gets set true again while a fault is
+  // still active (e.g. a stray DP write from elsewhere).
   useEffect(() => {
-    if (hasError) {
-      if (isRunning) {
-        actions.start.set(false);
-      }
-      setProgramPickerOpen(false);
-      setActiveNumberPicker(null);
+    if (hasError && isRunning) {
+      actions.start.set(false);
     }
-  }, [hasError]);
+  }, [hasError, isRunning]);
+
+  // ===== EXTERNAL PROGRAM SYNC =====
+  // `handleSelectProgram` only pushes the preset (soak/wash/rinse/spin
+  // times + default water level) when the change comes from THIS app's
+  // picker. If `program` changes from the physical machine's own control
+  // panel instead, dpState.program updates fine on its own — but nothing
+  // re-applies the matching preset, so the derived DPs and the water-level
+  // picker's available range can drift from whatever program the machine
+  // actually reports.
+  //
+  // This watches `program` itself (regardless of who changed it) and
+  // reapplies its preset. `prevProgramRef` skips the very first render so
+  // opening the panel doesn't immediately stomp on values already stored
+  // on the device — it only fires on an ACTUAL change after that.
+  const prevProgramRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (prevProgramRef.current === null) {
+      prevProgramRef.current = program;
+      return;
+    }
+
+    if (prevProgramRef.current !== program) {
+      prevProgramRef.current = program;
+
+      const preset = PROGRAM_PRESETS[program];
+      if (preset) {
+        actions.soaktime.set(preset.soaktime);
+        actions.washtime.set(preset.washtime);
+        actions.rinsetimes.set(preset.rinsetimes);
+        actions.spintime.set(preset.spintime);
+        actions.water_level.set(preset.water_level);
+      }
+    }
+  }, [program]);
 
   const handleOpenProgramPicker = () => {
     if (controlsLocked) return;
@@ -162,8 +195,21 @@ export function Operation() {
   };
 
   const handleSelectProgram = (option: string) => {
-    if (controlsLocked) return; // extra guard in case the modal was already open when start/error flipped
+    if (controlsLocked) return;
     actions.program.set(option);
+
+    // Selecting a program applies its full preset — the individual
+    // soak/wash/rinse/spin times and default water level aren't exposed as
+    // separate controls; they're implied entirely by the program choice.
+    const preset = PROGRAM_PRESETS[option];
+    if (preset) {
+      actions.soaktime.set(preset.soaktime);
+      actions.washtime.set(preset.washtime);
+      actions.rinsetimes.set(preset.rinsetimes);
+      actions.spintime.set(preset.spintime);
+      actions.water_level.set(preset.water_level);
+    }
+
     setProgramPickerOpen(false);
   };
 
@@ -198,8 +244,6 @@ export function Operation() {
 
   return (
     <View className={styles.view}>
-      {/* <Text>{Strings.getLang('errorText')}</Text> */}
-
       {/* Top row: program pill + power button */}
       <View className={styles.topRow}>
         <View
@@ -268,8 +312,8 @@ export function Operation() {
           mode="aspectFit"
         />
 
-        {/* Hidden entirely during a fault — starting isn't allowed until it clears */}
-        {!controlsLocked && (
+        {/* Hidden entirely during a fault — only the power button stays usable */}
+        {!isRunning && !hasError && (
           <View className={styles.dialOverlayBtn} onClick={handleStart}>
             <Text className={styles.dialOverlayBtnText}>{Strings.getLang('start')}</Text>
           </View>
@@ -308,17 +352,20 @@ export function Operation() {
         </View>
       </View>
 
-      {/* Footer info bar — Water Level and Delay Time are tappable unless locked */}
-      <View className={styles.footerContainer}>
-        {/* Error banner — only rendered while there's an active fault (error_report != E0),
-            and flashes to draw attention. Absent entirely when there's no fault. */}
-        {hasError && (
-          <View className={styles.errorContainer}>
-            <Text className={styles.errorValue}>{`E${errorCode}`}</Text>
-            <Text className={styles.errorLabel}>{errorLabel}</Text>
-          </View>
-        )}
+      {/* ===== ERROR HANDLING =====
+          Error banner only renders when error_report is anything other
+          than "0" (E0 = No Error Code). Flashes red to grab attention. */}
+      {hasError && (
+        <View className={styles.errorBanner}>
+          <Text className={styles.errorBannerCode}>{`E${errorCode}`}</Text>
+          <Text className={styles.errorBannerText}>
+            {getDpLabel('error_report', errorCode)}
+          </Text>
+        </View>
+      )}
 
+      {/* Footer info bar — Water Level and Delay Time are tappable */}
+      <View className={styles.footerContainer}>
         <View
           className={controlsLocked ? styles.footerBarDisabled : styles.footerBar}
           onClick={() => handleOpenNumberPicker('water_level')}
