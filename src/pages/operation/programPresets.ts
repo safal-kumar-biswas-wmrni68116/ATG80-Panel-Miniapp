@@ -22,75 +22,75 @@ export interface ProgramPreset {
 
 export const PROGRAM_PRESETS: Record<string, ProgramPreset> = {
   NORMAL: {
-    soaktime: '10',
-    washtime: '15',
+    soaktime: '0',  //this can't be changed by user.
+    washtime: '11',
     rinsetimes: '2',
-    spintime: '9',
-    water_level: '5',
+    spintime: '7',
+    water_level: '8',
     available_water_level: ['1', '2', '3', '4', '5', '6', '7', '8'],
   },
   MIX_WASH: {
-    soaktime: '5',
-    washtime: '10',
+    soaktime: '0',  //this can't be changed by user.
+    washtime: '11',
     rinsetimes: '2',
     spintime: '7',
-    water_level: '5',
-    available_water_level: ['1', '2', '3', '4', '5', '6'],
+    water_level: '8',
+    available_water_level: ['1', '2', '3', '4', '5', '6', '7', '8'],
   },
   COTTON: {
-    soaktime: '15',
-    washtime: '20',
-    rinsetimes: '3',
-    spintime: '10',
+    soaktime: '0',
+    washtime: '9', //this can't be changed by user.
+    rinsetimes: '2',
+    spintime: '7',
     water_level: '8',
     available_water_level: ['3', '4', '5', '6', '7', '8', '9', '10'],
   },
   WOOL: {
-    soaktime: '10',
-    washtime: '10',
-    rinsetimes: '1',
-    spintime: '5',
-    water_level: '4',
-    available_water_level: ['1', '2', '3', '4', '5'],
+    soaktime: '0',
+    washtime: '5',
+    rinsetimes: '2',
+    spintime: '7',
+    water_level: '8',
+    available_water_level: ['1', '2', '3', '4', '5', '6', '7', '8'],
   },
   SANTIZE: {
-    soaktime: '20',
-    washtime: '18',
-    rinsetimes: '3',
-    spintime: '9',
-    water_level: '7',
+    soaktime: '0',  //this can't be changed by user.
+    washtime: '11',
+    rinsetimes: '2',
+    spintime: '7',
+    water_level: '8',
     available_water_level: ['5', '6', '7', '8', '9', '10'],
   },
   QUICK: {
     soaktime: '0',
-    washtime: '4',
+    washtime: '5',
     rinsetimes: '1',
-    spintime: '6',
-    water_level: '3',
+    spintime: '5',
+    water_level: '4',
     available_water_level: ['1', '2', '3', '4'],
   },
   RINSE_SPIN: {
-    soaktime: '0',
-    washtime: '0',
+    soaktime: '0',  //this can't be changed by user.
+    washtime: '0', //this can't be changed by user.
     rinsetimes: '2',
-    spintime: '10',
-    water_level: '5',
+    spintime: '7',
+    water_level: '8',
     available_water_level: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
   },
   ECO_40_60: {
-    soaktime: '5',
-    washtime: '12',
+    soaktime: '0',
+    washtime: '14',
     rinsetimes: '2',
-    spintime: '8',
-    water_level: '6',
+    spintime: '7',
+    water_level: '8',
     available_water_level: ['3', '4', '5', '6', '7'],
   },
   TUB_CLEAN: {
-    soaktime: '25',
-    washtime: '20',
-    rinsetimes: '4',
-    spintime: '10',
-    water_level: '10',
+    soaktime: '0', //this can't be changed by user.
+    washtime: '0', //this can't be changed by user.
+    rinsetimes: '0', //this can't be changed by user.
+    spintime: '0', //this can't be changed by user.
+    water_level: '4',
     available_water_level: ['8', '9', '10'],
   },
   AIR_DRY: {
