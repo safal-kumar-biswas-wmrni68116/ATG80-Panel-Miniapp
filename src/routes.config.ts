@@ -11,4 +11,9 @@ export const routes: Routes = [
     path: '/pages/operation/index',
     name: 'Operation',
   },
+  {
+  route: '/select-program',
+  path: '/pages/selectProgram/index',
+  name: 'SelectProgram',
+  },
 ];

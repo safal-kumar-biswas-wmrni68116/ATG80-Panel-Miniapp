@@ -31,6 +31,13 @@ export default {
     selectAirDryTime: 'Select Air Dry Time',
     cancel: 'Cancel',
 
+    // ----- Added: SelectProgram page text -----
+    delayEnd: 'Delay End',
+    temperature: 'Temperature',
+    programData: 'Program Data',
+    energyEfficient: 'Energy Efficient',
+    proceed: 'Proceed',
+
     // ----- Added: `program` DP values -----
     dp_program_normal: 'NORMAL',
     dp_program_mix_wash: 'MIX WASH',
@@ -57,15 +64,15 @@ export default {
     dp_work_state_error: 'Fault',
 
     // ----- Errors ---------
-    e1 : 'Some Error 1',
-    e2 : 'Some Error 2',
-    e3 : 'Some Error 3',
-    e4 : 'Some Error 4',
-    e5 : 'Some Error 5',
-    e6 : 'Some Error 6',
-    e7 : 'Some Error 7',
-    e8 : 'Some Error 8',
-    e9 : 'Some Error 9',
+    e1: 'Some Error 1',
+    e2: 'Some Error 2',
+    e3: 'Some Error 3',
+    e4: 'Some Error 4',
+    e5: 'Some Error 5',
+    e6: 'Some Error 6',
+    e7: 'Some Error 7',
+    e8: 'Some Error 8',
+    e9: 'Some Error 9',
   },
   zh: {
     // ----- Existing custom UI text (blanks / mistranslations fixed) -----
@@ -98,6 +105,13 @@ export default {
     selectAirDryTime: '选择风干时间',
     cancel: '取消',
 
+    // ----- Added: SelectProgram page text -----
+    delayEnd: '延迟结束',
+    temperature: '温度',
+    programData: '程序数据',
+    energyEfficient: '节能等级',
+    proceed: '继续',
+
     // ----- Added: `program` DP values -----
     dp_program_normal: '正常',
     dp_program_mix_wash: '混合洗',
@@ -124,14 +138,14 @@ export default {
     dp_work_state_error: '故障',
 
     // ----- Errors ---------
-    e1 : 'Some Error 1',
-    e2 : 'Some Error 2',
-    e3 : 'Some Error 3',
-    e4 : 'Some Error 4',
-    e5 : 'Some Error 5',
-    e6 : 'Some Error 6',
-    e7 : 'Some Error 7',
-    e8 : 'Some Error 8',
-    e9 : 'Some Error 9',
+    e1: 'Some Error 1',
+    e2: 'Some Error 2',
+    e3: 'Some Error 3',
+    e4: 'Some Error 4',
+    e5: 'Some Error 5',
+    e6: 'Some Error 6',
+    e7: 'Some Error 7',
+    e8: 'Some Error 8',
+    e9: 'Some Error 9',
   },
 };

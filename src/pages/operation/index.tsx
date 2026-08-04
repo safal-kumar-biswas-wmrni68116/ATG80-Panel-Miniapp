@@ -194,7 +194,8 @@ export function Operation() {
 
   const handleOpenProgramPicker = () => {
     if (controlsLocked) return;
-    setProgramPickerOpen(true);
+    // setProgramPickerOpen(true);
+    navigateTo({ url: '/pages/selectProgram/index' });
   };
 
   const handleSelectProgram = (option: string) => {
